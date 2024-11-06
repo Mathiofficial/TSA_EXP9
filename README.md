@@ -15,8 +15,49 @@ To Create a project on Time series analysis on weather forecasting using ARIMA m
 6. Auto-fit the ARIMA model
 7. Evaluate model predictions
 ### PROGRAM:
+```
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from statsmodels.tsa.arima.model import ARIMA
+from sklearn.metrics import mean_squared_error
 
+# Load dataset
+data = pd.read_csv("/content/seattle_weather_1948-2017.csv")  
+data['DATE'] = pd.to_datetime(data['DATE'])
+data.set_index('DATE', inplace=True)
+
+# Function to apply ARIMA model
+def arima_model(data, target_variable, order):
+    # Splitting data into train and test sets
+    train_size = int(len(data) * 0.8)
+    train_data, test_data = data[:train_size], data[train_size:]
+     # Initialize and fit ARIMA model
+    model = ARIMA(train_data[target_variable], order=order)
+    fitted_model = model.fit()
+
+    # Forecasting
+    forecast = fitted_model.forecast(steps=len(test_data))
+
+
+    # Calculate RMSE
+    rmse = np.sqrt(mean_squared_error(test_data[target_variable], forecast))
+     # Plot the results
+    plt.figure(figsize=(10, 6))
+    plt.plot(train_data.index, train_data[target_variable], label='Training Data')
+    plt.plot(test_data.index, test_data[target_variable], label='Testing Data')
+    plt.plot(test_data.index, forecast, label='Forecasted Data')
+    plt.xlabel('Date')
+    plt.ylabel(target_variable)
+    plt.title(f'ARIMA Forecasting for {target_variable}')
+    plt.legend()
+    plt.show()
+    print("Root Mean Squared Error (RMSE):", rmse)
+
+arima_model(data, 'TMAX', order=(5,1,0))
+```
 ### OUTPUT:
+![image](https://github.com/user-attachments/assets/c25ac0c3-41c8-4dbe-b56c-e5982d3dd6f8)
 
 
 ### RESULT:
